@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Beau Mason Journal</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Special+Elite&family=Pinyon+Script&family=UnifrakturMaguntia&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --m:#C8A84B;--ml:#F0D98A;--mp:#FAF0C8;
+  --p:#FDF6E3;--tc:#C4724A;--tcl:#E8A882;
+  --ink:#2C1A0E;--inks:#4A3520;--inkm:#7A6040;
+  --bo:#B8943A;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#2E1B0A;font-family:'Special Elite',serif;color:var(--ink);min-height:100vh;}
+.view{display:none;}.view.active{display:block;}
+
+/* COVER */
+#cover{min-height:100vh;background:linear-gradient(160deg,#B8860B 0%,#C8A84B 30%,#F0D98A 55%,#C8A84B 75%,#8B6914 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:pointer;padding:2rem;}
+#cover::before{content:'';position:absolute;inset:12px;border:3px double var(--bo);pointer-events:none;}
+#cover::after{content:'';position:absolute;inset:20px;border:1px solid rgba(255,255,255,0.25);pointer-events:none;}
+.cn{font-family:'UnifrakturMaguntia',serif;font-size:clamp(2.8rem,7vw,5rem);color:var(--ink);text-shadow:2px 2px 0 rgba(255,255,255,0.3),-1px -1px 0 rgba(0,0,0,0.2);text-align:center;line-height:1.1;margin-bottom:1rem;}
+.cdiv{width:300px;height:2px;background:linear-gradient(90deg,transparent,var(--ink) 20%,var(--ink) 80%,transparent);margin:0.8rem auto;opacity:0.5;}
+.cs{font-family:'IM Fell English',serif;font-size:clamp(0.9rem,2.5vw,1.2rem);color:var(--inks);letter-spacing:0.15em;text-align:center;text-transform:uppercase;}
+.cy{font-family:'Special Elite',serif;font-size:0.85rem;color:var(--inkm);margin-top:2.5rem;letter-spacing:0.3em;}
+.ct{font-size:0.75rem;color:var(--inkm);margin-top:1rem;letter-spacing:0.1em;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:0.5}50%{opacity:1}}
+
+/* APP */
+#app{min-height:100vh;background:var(--p);max-width:960px;margin:0 auto;}
+nav{background:var(--m);border-bottom:3px double var(--bo);display:flex;align-items:center;overflow-x:auto;padding:0 0.5rem;}
+nav button{background:none;border:none;cursor:pointer;font-family:'IM Fell English',serif;font-size:0.82rem;color:var(--ink);padding:0.65rem 0.85rem;white-space:nowrap;border-bottom:3px solid transparent;transition:border-color 0.2s;}
+nav button.active,nav button:hover{border-bottom-color:var(--ink);font-weight:700;}
+.nb{font-family:'UnifrakturMaguntia',serif;font-size:1.3rem;color:var(--ink);padding:0.5rem 1rem 0.5rem 0.5rem;border-right:1px solid rgba(0,0,0,0.2);margin-right:0.5rem;flex-shrink:0;}
+.page{display:none;padding:1.5rem 2rem;}
+.page.active{display:block;}
+
+/* SHARED */
+.sl{font-family:'IM Fell English',serif;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--inkm);margin:1.2rem 0 0.4rem;}
+.save-btn{background:var(--m);border:2px solid var(--bo);border-radius:4px;padding:0.5rem 1.3rem;cursor:pointer;font-family:'IM Fell English',serif;font-size:0.95rem;color:var(--ink);margin-top:1rem;display:inline-block;transition:background 0.2s;}
+.save-btn:hover{background:var(--bo);}
+.ai-loading{display:flex;align-items:center;gap:0.6rem;font-family:'IM Fell English',serif;font-style:italic;color:var(--inkm);font-size:0.85rem;padding:0.5rem 0;}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--m);animation:dp 1.2s infinite;}
+.ai-dot:nth-child(2){animation-delay:0.2s;}.ai-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes dp{0%,80%,100%{opacity:0.3;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+.ai-badge{display:inline-block;background:var(--mp);border:1px solid var(--m);border-radius:20px;padding:0.15rem 0.6rem;font-size:0.68rem;font-family:'Special Elite',serif;color:var(--inkm);margin-bottom:0.4rem;}
+
+/* DATE PICKER STYLE */
+.date-picker{border:1px solid var(--ml);border-radius:4px;padding:0.4rem 0.65rem;font-family:'Special Elite',serif;font-size:0.82rem;color:var(--ink);background:#fff;outline:none;cursor:pointer;}
+.date-picker:focus{border-color:var(--m);}
+
+/* MORNING */
+.altar-card{background:linear-gradient(135deg,#FFF8E1,#FDF0C8);border:2px solid var(--m);border-radius:4px;padding:2rem;max-width:680px;margin:0 auto;}
+.altar-title{font-family:'UnifrakturMaguntia',serif;font-size:1.8rem;text-align:center;color:var(--tc);margin-bottom:0.3rem;}
+.altar-sub{text-align:center;font-family:'IM Fell English',serif;font-style:italic;color:var(--inkm);margin-bottom:1.5rem;font-size:0.9rem;}
+.prayer-block{background:rgba(200,168,75,0.1);border-left:4px solid var(--m);padding:1rem 1.2rem;margin:0.8rem 0;border-radius:0 4px 4px 0;min-height:56px;}
+.pd{font-family:'IM Fell English',serif;font-weight:700;color:var(--tc);font-size:1rem;margin-bottom:0.4rem;}
+.pt{font-family:'Special Elite',serif;font-size:0.85rem;line-height:1.8;color:var(--inks);}
+.quote-box{background:var(--mp);border:1px solid var(--m);border-radius:4px;padding:1rem 1.2rem;margin-top:1.2rem;text-align:center;min-height:56px;}
+.qt{font-family:'IM Fell English',serif;font-style:italic;font-size:1rem;color:var(--ink);line-height:1.7;}
+.qa{font-size:0.75rem;color:var(--inkm);margin-top:0.5rem;letter-spacing:0.1em;}
+.aff-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;margin-top:1rem;}
+.aff-item{background:#fff;border:1px solid var(--ml);border-radius:4px;padding:0.65rem;font-family:'Special Elite',serif;font-size:0.78rem;color:var(--inks);line-height:1.5;text-align:center;}
+
+/* JOURNAL LAYOUT */
+.journal-layout{display:grid;grid-template-columns:290px 1fr;gap:0;min-height:calc(100vh - 52px);}
+.entries-panel{border-right:2px solid var(--ml);background:#FFFDF5;padding:1rem;overflow-y:auto;max-height:calc(100vh - 52px);}
+.ep-top{display:flex;flex-direction:column;gap:0.55rem;margin-bottom:0.8rem;}
+.mode-toggle{display:flex;border:1px solid var(--ml);border-radius:4px;overflow:hidden;}
+.mode-btn{flex:1;background:#fff;border:none;padding:0.38rem 0.2rem;cursor:pointer;font-family:'IM Fell English',serif;font-size:0.78rem;color:var(--inkm);transition:all 0.15s;}
+.mode-btn.active{background:var(--m);color:var(--ink);font-weight:700;}
+#searchInput{width:100%;border:1px solid var(--ml);border-radius:4px;padding:0.4rem 0.65rem;font-family:'Special Elite',serif;font-size:0.8rem;color:var(--ink);background:#fff;outline:none;}
+#searchInput:focus{border-color:var(--m);}
+.new-btn{background:var(--m);border:2px solid var(--bo);border-radius:4px;padding:0.4rem 0.8rem;cursor:pointer;font-family:'IM Fell English',serif;font-size:0.88rem;color:var(--ink);text-align:center;}
+.new-btn:hover{background:var(--bo);}
+.ecard{background:#fff;border:1px solid var(--ml);border-left:3px solid var(--ml);border-radius:4px;padding:0.65rem 0.8rem;margin-bottom:0.5rem;cursor:pointer;transition:all 0.15s;}
+.ecard:hover,.ecard.active{border-left-color:var(--tc);background:var(--mp);}
+.ecard-date{font-family:'IM Fell English',serif;font-style:italic;font-size:0.73rem;color:var(--inkm);margin-bottom:0.2rem;}
+.ecard-mood{font-size:0.7rem;color:var(--tc);font-family:'Special Elite',serif;margin-bottom:0.18rem;}
+.ecard-preview{font-family:'Special Elite',serif;font-size:0.76rem;color:var(--inks);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.etags{display:flex;gap:0.3rem;flex-wrap:wrap;margin-top:0.3rem;}
+.etag{background:var(--ml);border-radius:10px;padding:0.1rem 0.4rem;font-size:0.63rem;color:var(--inkm);font-family:'Special Elite',serif;}
+.dream-badge{background:#e8e0f7;border-radius:10px;padding:0.1rem 0.5rem;font-size:0.63rem;color:#5a3fa0;font-family:'Special Elite',serif;margin-bottom:0.2rem;display:inline-block;}
+.thought-badge{background:#e0f0e8;border-radius:10px;padding:0.1rem 0.5rem;font-size:0.63rem;color:#2d7a3a;font-family:'Special Elite',serif;margin-bottom:0.2rem;display:inline-block;}
+.empty-state{text-align:center;padding:2rem 0.5rem;font-family:'IM Fell English',serif;font-style:italic;color:var(--inkm);font-size:0.88rem;line-height:1.6;}
+.editor-panel{padding:1.5rem 1.8rem;overflow-y:auto;max-height:calc(100vh - 52px);}
+
+/* WRITE */
+.wh{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;margin-bottom:1rem;}
+.wd{font-family:'IM Fell English',serif;font-style:italic;font-size:0.88rem;color:var(--inkm);}
+.pb{background:linear-gradient(90deg,var(--mp),#fff8e8);border:1px solid var(--m);border-radius:4px;padding:0.75rem 1rem;margin-bottom:1rem;font-family:'IM Fell English',serif;font-style:italic;color:var(--inks);font-size:0.88rem;line-height:1.6;}
+.pl{font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--m);margin-bottom:0.25rem;font-style:normal;font-family:'Special Elite',serif;}
+.mood-row{display:flex;gap:0.35rem;flex-wrap:wrap;margin-bottom:0.8rem;}
+.mood-btn{background:#fff;border:1px solid var(--ml);border-radius:20px;padding:0.28rem 0.65rem;cursor:pointer;font-size:0.73rem;font-family:'Special Elite',serif;color:var(--inks);transition:all 0.2s;}
+.mood-btn.selected{background:var(--m);color:var(--ink);border-color:var(--bo);}
+.tag-row{display:flex;gap:0.35rem;flex-wrap:wrap;align-items:center;margin-bottom:0.8rem;}
+.tag-chip{background:var(--ml);border:none;border-radius:20px;padding:0.18rem 0.55rem;font-size:0.7rem;font-family:'Special Elite',serif;color:var(--ink);cursor:pointer;}
+.tag-chip:hover{background:var(--m);}
+#tagInput{border:1px solid var(--ml);border-radius:20px;padding:0.18rem 0.65rem;font-family:'Special Elite',serif;font-size:0.7rem;color:var(--ink);background:#fff;outline:none;width:105px;}
+#tagInput:focus{border-color:var(--m);}
+.toolbar{display:flex;gap:0.35rem;margin-bottom:0.45rem;flex-wrap:wrap;}
+.tb-btn{background:#fff;border:1px solid var(--ml);border-radius:3px;padding:0.22rem 0.5rem;cursor:pointer;font-size:0.76rem;font-family:'Special Elite',serif;color:var(--inks);}
+.tb-btn:hover{background:var(--ml);}
+.editor-area{width:100%;min-height:240px;border:2px solid var(--ml);border-radius:4px;background:repeating-linear-gradient(transparent,transparent 31px,rgba(200,168,75,0.2) 31px,rgba(200,168,75,0.2) 32px),var(--p);font-family:'Special Elite',serif;font-size:0.95rem;line-height:2rem;color:var(--ink);padding:0.8rem 1rem 0.8rem 2.2rem;resize:vertical;outline:none;}
+.editor-area:focus{border-color:var(--m);}
+.voice-row{display:flex;align-items:center;gap:0.8rem;margin-top:0.7rem;}
+.rec-btn{background:var(--p);border:2px solid var(--tc);border-radius:50%;width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all 0.2s;flex-shrink:0;}
+.rec-btn.recording{background:var(--tc);animation:rp 1s infinite;}
+@keyframes rp{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+.vs{font-family:'Special Elite',serif;font-size:0.76rem;color:var(--inkm);}
+.edit-btn{background:none;border:1px solid var(--m);border-radius:4px;padding:0.28rem 0.75rem;cursor:pointer;font-family:'IM Fell English',serif;font-size:0.8rem;color:var(--inks);}
+.edit-btn:hover{background:var(--mp);}
+.del-btn{background:none;border:1px solid var(--tcl);border-radius:4px;padding:0.28rem 0.75rem;cursor:pointer;font-family:'IM Fell English',serif;font-size:0.8rem;color:var(--tc);}
+.del-btn:hover{background:#fff0eb;}
+.reader-body{font-family:'Special Elite',serif;font-size:0.92rem;line-height:2rem;color:var(--ink);white-space:pre-wrap;background:repeating-linear-gradient(transparent,transparent 31px,rgba(200,168,75,0.2) 31px,rgba(200,168,75,0.2) 32px);padding:1rem 1rem 1rem 2.2rem;border:1px solid var(--ml);border-radius:4px;min-height:160px;}
+.reader-sig{font-family:'Pinyon Script',cursive;font-size:2rem;color:var(--inks);text-align:right;margin-top:0.8rem;}
+.insight-box{background:linear-gradient(135deg,#fff8e8,#fdf0c8);border:1px solid var(--m);border-radius:4px;padding:1rem 1.2rem;margin-top:1rem;}
+.insight-title{font-family:'IM Fell English',serif;font-size:0.82rem;color:var(--tc);margin-bottom:0.4rem;}
+.insight-text{font-family:'IM Fell English',serif;font-style:italic;font-size:0.88rem;color:var(--inks);line-height:1.7;}
+
+/* THOUGHTS */
+.thought-quick{background:#fff;border:1px solid var(--ml);border-radius:4px;padding:1rem;margin-bottom:1rem;}
+.thought-input{width:100%;border:1px solid var(--ml);border-radius:4px;padding:0.6rem 0.8rem;font-family:'Special Elite',serif;font-size:0.9rem;color:var(--ink);background:var(--p);outline:none;resize:none;min-height:80px;}
+.thought-input:focus{border-color:var(--m);}
+.thought-meta{display:flex;gap:0.6rem;align-items:center;margin-top:0.6rem;flex-wrap:wrap;}
+.thought-save{background:var(--m);border:1px solid var(--bo);border-radius:4px;padding:0.35rem 1rem;cursor:pointer;font-family:'IM Fell English',serif;font-size:0.88rem;color:var(--ink);}
+.thought-save:hover{background:var(--bo);}
+.thought-item{background:#fff;border:1px solid var(--ml);border-left:3px solid #a8c8a0;border-radius:4px;padding:0.7rem 0.9rem;margin-bottom:0.5rem;}
+.thought-item-date{font-family:'IM Fell English',serif;font-style:italic;font-size:0.72rem;color:var(--inkm);margin-bottom:0.3rem;}
+.thought-item-text{font-family:'Special Elite',serif;font-size:0.86rem;color:var(--inks);line-height:1.6;white-space:pre-wrap;}
+.thought-item-del{background:none;border:none;cursor:pointer;color:var(--inkm);font-size:0.72rem;float:right;padding:0;}
+
+/* FINANCES */
+.stat-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:0.8rem;margin-bottom:1.2rem;}
+.stat-box{background:var(--mp);border:1px solid var(--ml);border-radius:4px;padding:0.7rem;text-align:center;}
+.stat-label{font-family:'Special Elite',serif;font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--inkm);margin-bottom:0.25rem;}
+.stat-val{font-family:'IM Fell English',serif;font-size:1.15rem;color:var(--ink);font-weight:700;}
+.stat-val.inc{color:#2d7a3a;}.stat-val.exp{color:var(--tc);}.stat-val.sav{color:#1a5fa8;}
+.progress-wrap{margin:0.8rem 0;}
+.progress-label{font-family:'Special Elite',serif;font-size:0.72rem;color:var(--inkm);margin-bottom:0.4rem;display:flex;justify-content:space-between;}
+.progress-track{background:#e8e0c8;border-radius:20px;height:10px;overflow:hidden;}
+.progress-bar{background:linear-gradient(90deg,var(--m),var(--bo));height:100%;border-radius:20px;transition:width 0.5s;}
+.fin-layout{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1.2rem;}
+.fin-card{background:#fff;border:1px solid var(--ml);border-radius:4px;padding:1.2rem;}
+.fin-title{font-family:'IM Fell English',serif;font-size:1rem;color:var(--tc);margin-bottom:0.9rem;}
+.fin-form{display:flex;flex-direction:column;gap:0.55rem;}
+.fin-input{border:1px solid var(--ml);border-radius:4px;padding:0.42rem 0.65rem;font-family:'Special Elite',serif;font-size:0.84rem;color:var(--ink);background:#fff;outline:none;width:100%;}
+.fin-input:focus{border-color:var(--m);}
+.fin-select{border:1px solid var(--ml);border-radius:4px;padding:0.42rem 0.65rem;font-family:'Special Elite',serif;font-size:0.84rem;color:var(--ink);background:#fff;outline:none;width:100%;}
+.fin-log{max-height:280px;overflow-y:auto;margin-top:0.5rem;}
+.fin-item{display:flex;justify-content:space-between;align-items:center;padding:0.42rem 0.5rem;border-bottom:1px solid var(--ml);font-family:'Special Elite',serif;font-size:0.78rem;color:var(--inks);}
+.fin-item:last-child{border-bottom:none;}
+.fin-item-cat{font-size:0.66rem;color:var(--inkm);margin-top:0.1rem;}
+.fin-amt{font-weight:700;}
+.fin-amt.fi{color:#2d7a3a;}.fin-amt.fe{color:var(--tc);}.fin-amt.fs{color:#1a5fa8;}
+.fin-del{background:none;border:none;cursor:pointer;color:var(--inkm);font-size:0.72rem;padding:0 0.3rem;}
+.goal-pct{font-family:'UnifrakturMaguntia',serif;font-size:1.4rem;color:var(--tc);text-align:center;margin-bottom:0.4rem;}
+
+/* BOOK */
+.book-layout{max-width:760px;margin:0 auto;}
+.book-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.4rem;flex-wrap:wrap;gap:0.8rem;}
+.book-title-h{font-family:'UnifrakturMaguntia',serif;font-size:1.8rem;color:var(--tc);}
+.chapter-card{background:#fff;border:1px solid var(--ml);border-left:4px solid var(--m);border-radius:4px;padding:1.2rem 1.5rem;margin-bottom:1.2rem;}
+.chapter-num{font-family:'Special Elite',serif;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--inkm);margin-bottom:0.4rem;}
+.chapter-title-t{font-family:'IM Fell English',serif;font-size:1.1rem;color:var(--tc);margin-bottom:0.8rem;}
+.chapter-body{font-family:'IM Fell English',serif;font-size:0.92rem;line-height:1.85;color:var(--inks);}
+.gen-btn{background:var(--m);border:2px solid var(--bo);border-radius:4px;padding:0.52rem 1.3rem;cursor:pointer;font-family:'IM Fell English',serif;font-size:0.92rem;color:var(--ink);}
+.gen-btn:hover{background:var(--bo);}
+
+/* PLAN */
+.plan-wrap{max-width:680px;margin:0 auto;}
+.yblock{background:#fff;border:1px solid var(--ml);border-left:4px solid var(--ml);border-radius:4px;padding:0.9rem 1.1rem;margin-bottom:0.8rem;}
+.ylabel{font-family:'Special Elite',serif;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--inkm);margin-bottom:0.4rem;}
+.ytext{font-family:'IM Fell English',serif;font-style:italic;font-size:0.86rem;color:var(--inks);line-height:1.7;white-space:pre-wrap;}
+.plan-section{margin-bottom:1.3rem;}
+.plan-section label{font-family:'Special Elite',serif;font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--inkm);display:block;margin-bottom:0.42rem;}
+.plan-input{width:100%;border:1px solid var(--ml);border-radius:4px;padding:0.52rem 0.75rem;font-family:'Special Elite',serif;font-size:0.88rem;color:var(--ink);background:#fff;outline:none;resize:vertical;}
+.plan-input:focus{border-color:var(--m);}
+.todo-list{list-style:none;}
+.todo-item{display:flex;align-items:center;gap:0.7rem;margin-bottom:0.42rem;}
+.todo-check{accent-color:var(--m);width:15px;height:15px;cursor:pointer;}
+.todo-text{font-family:'Special Elite',serif;font-size:0.86rem;color:var(--inks);flex:1;}
+.todo-text.done{text-decoration:line-through;opacity:0.5;}
+.add-todo-row{display:flex;gap:0.5rem;margin-top:0.5rem;}
+#todoInput{flex:1;border:1px solid var(--ml);border-radius:4px;padding:0.36rem 0.65rem;font-family:'Special Elite',serif;font-size:0.84rem;color:var(--ink);background:#fff;outline:none;}
+.add-btn{background:var(--m);border:none;border-radius:4px;padding:0.36rem 0.82rem;cursor:pointer;font-family:'Special Elite',serif;font-size:0.84rem;color:var(--ink);}
+
+/* REMINDERS */
+.rem-card{background:#fff;border:1px solid var(--ml);border-radius:4px;padding:1.1rem;margin-bottom:1rem;max-width:540px;}
+.rem-title{font-family:'IM Fell English',serif;font-size:1rem;color:var(--tc);margin-bottom:0.3rem;}
+.rem-desc{font-family:'Special Elite',serif;font-size:0.8rem;color:var(--inkm);margin-bottom:0.7rem;line-height:1.6;}
+.time-badge{background:var(--mp);border:1px solid var(--m);border-radius:20px;padding:0.22rem 0.75rem;display:inline-block;font-family:'Special Elite',serif;font-size:0.8rem;color:var(--inks);}
+
+/* NOTIF */
+#notifOverlay{position:fixed;inset:0;background:rgba(44,26,14,0.7);display:none;align-items:center;justify-content:center;z-index:9999;}
+#notifOverlay.show{display:flex;}
+.notif-card{background:linear-gradient(160deg,#FDF0C8,#FFF8E1);border:3px double var(--bo);border-radius:6px;padding:2rem 2.5rem;max-width:440px;width:90%;text-align:center;}
+.notif-icon{font-size:2.5rem;margin-bottom:0.5rem;}
+.notif-title{font-family:'UnifrakturMaguntia',serif;font-size:1.6rem;color:var(--tc);margin-bottom:0.5rem;}
+.notif-body{font-family:'IM Fell English',serif;font-style:italic;font-size:0.92rem;color:var(--inks);line-height:1.7;margin-bottom:1.2rem;}
+.notif-close{background:var(--m);border:2px solid var(--bo);border-radius:4px;padding:0.5rem 1.5rem;cursor:pointer;font-family:'IM Fell English',serif;font-size:0.95rem;color:var(--ink);}
+
+@media(max-width:640px){
+  .journal-layout,.fin-layout{grid-template-columns:1fr;}
+  .entries-panel{max-height:220px;border-right:none;border-bottom:2px solid var(--ml);}
+  .editor-panel{max-height:none;}
+  .aff-grid,.stat-grid-4{grid-template-columns:1fr 1fr;}
+  #cover{padding:1rem;}.cn{font-size:2.5rem;}
+  .page{padding:1rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div id="cover" class="view active" onclick="openJournal()">
+  <div style="font-size:2rem;color:var(--ink);opacity:0.6;letter-spacing:0.5rem;margin-bottom:1.5rem;">✦ ✦ ✦ ✦ ✦</div>
+  <div class="cn">Beau Mason</div>
+  <div class="cdiv"></div>
+  <div class="cs">The 34 Billion Dollar Reality</div>
+  <div class="cdiv"></div>
+  <div class="cy">Anno Domini MMXXVI</div>
+  <div class="ct">— tap to open —</div>
+</div>
+
+<!-- APP -->
+<div id="app" class="view">
+  <nav>
+    <div class="nb">BM</div>
+    <button onclick="showPage('morning')" id="nb-morning" class="active">Morning Altar</button>
+    <button onclick="showPage('journal')" id="nb-journal">Journal</button>
+    <button onclick="showPage('finances')" id="nb-finances">Finances</button>
+    <button onclick="showPage('book')" id="nb-book">My Book</button>
+    <button onclick="showPage('plan')" id="nb-plan">Tomorrow</button>
+    <button onclick="showPage('reminders')" id="nb-reminders">Alarms</button>
+  </nav>
+
+  <!-- MORNING ALTAR -->
+  <div id="page-morning" class="page active">
+    <div class="altar-card">
+      <div class="altar-title">Morning Altar</div>
+      <div class="altar-sub" id="morningDate"></div>
+      <div class="sl">Daily Prayer — Orisha Aje</div>
+      <div class="prayer-block"><div class="pd">Orisha Aje — Deity of Wealth &amp; Prosperity</div><div class="pt" id="prayerAje"><div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Channelling your prayer...</span></div></div></div>
+      <div class="sl">Daily Prayer — Olokun</div>
+      <div class="prayer-block"><div class="pd">Olokun — Deity of the Deep, Abundance &amp; Mystery</div><div class="pt" id="prayerOlokun"><div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Channelling your prayer...</span></div></div></div>
+      <div class="sl">Today's Wealth &amp; Stoic Wisdom</div>
+      <div class="quote-box"><div class="ai-badge">AI — generated fresh today</div><div class="qt" id="dailyQuote"><div class="ai-loading" style="justify-content:center;"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div></div><div class="qa" id="quoteAttr"></div></div>
+      <div class="sl">Morning Affirmations</div>
+      <div class="aff-grid" id="affGrid"><div class="aff-item"><div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div></div><div class="aff-item"></div><div class="aff-item"></div><div class="aff-item"></div></div>
+    </div>
+  </div>
+
+  <!-- JOURNAL + DREAMS + THOUGHTS -->
+  <div id="page-journal" class="page" style="padding:0;">
+    <div class="journal-layout">
+      <div class="entries-panel">
+        <div class="ep-top">
+          <div class="mode-toggle">
+            <button class="mode-btn active" id="modeJournal" onclick="setMode('journal')">Journal</button>
+            <button class="mode-btn" id="modeDreams" onclick="setMode('dreams')">Dreams</button>
+            <button class="mode-btn" id="modeThoughts" onclick="setMode('thoughts')">Thoughts</button>
+          </div>
+          <button class="new-btn" id="newEntryBtn" onclick="openNewEntry()">+ New Entry</button>
+          <input type="text" id="searchInput" placeholder="Search..." oninput="renderEntries()"/>
+        </div>
+        <div id="entriesList"></div>
+      </div>
+      <div class="editor-panel" id="editorPanel">
+        <div class="empty-state" style="margin-top:4rem;"><div style="font-size:2rem;margin-bottom:0.8rem;">✦</div>Select an entry or tap <strong>+ New Entry</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINANCES -->
+  <div id="page-finances" class="page">
+    <div style="max-width:860px;margin:0 auto;">
+      <div style="font-family:'UnifrakturMaguntia',serif;font-size:1.6rem;color:var(--tc);margin-bottom:1.2rem;">Financial Ledger</div>
+      <div class="stat-grid-4">
+        <div class="stat-box"><div class="stat-label">Total Income</div><div class="stat-val inc" id="statIncome">₦0</div></div>
+        <div class="stat-box"><div class="stat-label">Total Expenses</div><div class="stat-val exp" id="statExpense">₦0</div></div>
+        <div class="stat-box"><div class="stat-label">Net Savings</div><div class="stat-val sav" id="statSavings">₦0</div></div>
+        <div class="stat-box"><div class="stat-label">Net Worth</div><div class="stat-val" id="statNet">₦0</div></div>
+      </div>
+      <div class="fin-card">
+        <div class="fin-title">$34 Billion Dollar Progress</div>
+        <div class="goal-pct" id="goalPct">0.000000%</div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>₦0</span><span>$34,000,000,000</span></div>
+          <div class="progress-track"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+        </div>
+        <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:0.82rem;color:var(--inkm);text-align:center;margin-top:0.5rem;" id="goalMsg">Every naira logged is a step toward the vision.</div>
+      </div>
+      <div class="fin-layout">
+        <div class="fin-card">
+          <div class="fin-title">Log Transaction</div>
+          <div class="fin-form">
+            <select class="fin-select" id="finType"><option value="income">Income</option><option value="expense">Expense</option><option value="savings">Savings</option></select>
+            <input class="fin-input" type="number" id="finAmount" placeholder="Amount (₦)"/>
+            <input class="fin-input" type="text" id="finDesc" placeholder="Description"/>
+            <select class="fin-select" id="finCat">
+              <option value="business">Business</option><option value="investment">Investment</option><option value="personal">Personal</option><option value="food">Food</option><option value="transport">Transport</option><option value="housing">Housing</option><option value="health">Health</option><option value="education">Education</option><option value="other">Other</option>
+            </select>
+            <input class="fin-input date-picker" type="date" id="finDate"/>
+            <button class="save-btn" style="margin-top:0;" onclick="logTransaction()">Add Entry</button>
+          </div>
+        </div>
+        <div class="fin-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;">
+            <div class="fin-title" style="margin-bottom:0;">Recent Transactions</div>
+            <select class="fin-select" style="width:auto;font-size:0.74rem;padding:0.22rem 0.45rem;" id="finFilter" onchange="renderFinLog()">
+              <option value="all">All</option><option value="income">Income</option><option value="expense">Expense</option><option value="savings">Savings</option>
+            </select>
+          </div>
+          <div class="fin-log" id="finLog"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY BOOK -->
+  <div id="page-book" class="page">
+    <div class="book-layout">
+      <div class="book-header">
+        <div class="book-title-h">My Autobiography</div>
+        <button class="gen-btn" onclick="generateChapter()">Generate New Chapter</button>
+      </div>
+      <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:0.88rem;color:var(--inkm);margin-bottom:1.5rem;">The story of Beau Mason — written from life, shaped by AI. Draws from your journal entries, dreams, and thoughts.</div>
+      <div id="chaptersContainer"><div class="empty-state">No chapters yet. Write journal entries first, then tap <strong>Generate New Chapter</strong>.</div></div>
+    </div>
+  </div>
+
+  <!-- PLAN -->
+  <div id="page-plan" class="page">
+    <div class="plan-wrap">
+      <div style="font-family:'IM Fell English',serif;font-size:1.3rem;color:var(--tc);margin-bottom:1.2rem;">Plan for Tomorrow</div>
+      <div id="yesterdayBlock" style="display:none;">
+        <div style="font-family:'IM Fell English',serif;font-size:0.92rem;color:var(--inkm);margin-bottom:0.7rem;font-style:italic;">— Yesterday's Plan —</div>
+        <div class="yblock"><div class="ylabel">Priorities</div><div class="ytext" id="yPriorities"></div></div>
+        <div class="yblock"><div class="ylabel">Intention</div><div class="ytext" id="yIntention"></div></div>
+        <div class="yblock"><div class="ylabel">To-Do List</div><div class="ytext" id="yTodos"></div></div>
+        <hr style="border:none;border-top:1px solid var(--ml);margin:1.2rem 0;"/>
+      </div>
+      <div class="plan-section"><label>Top 3 Priorities</label><textarea class="plan-input" id="planPriorities" rows="3" placeholder="What must you accomplish tomorrow to move closer to $34 billion?"></textarea></div>
+      <div class="plan-section"><label>Intention for tomorrow</label><textarea class="plan-input" id="planIntention" rows="2" placeholder="How do you intend to show up?"></textarea></div>
+      <div class="plan-section">
+        <label>To-Do List</label>
+        <ul class="todo-list" id="todoList"></ul>
+        <div class="add-todo-row"><input type="text" id="todoInput" placeholder="Add a task..." onkeydown="addTodo(event)"/><button class="add-btn" onclick="addTodoClick()">Add</button></div>
+      </div>
+      <div class="plan-section"><label>Follow-through Check</label><textarea class="plan-input" id="planReview" rows="2" placeholder="Reflect honestly. Where did you follow through? Where did you fall short?"></textarea></div>
+      <button class="save-btn" onclick="savePlan()">Save Plan</button>
+      <span id="planMsg" style="font-family:'IM Fell English',serif;font-style:italic;color:var(--tc);font-size:0.88rem;margin-left:1rem;display:none;">Plan saved.</span>
+    </div>
+  </div>
+
+  <!-- REMINDERS -->
+  <div id="page-reminders" class="page">
+    <div style="max-width:540px;">
+      <div style="font-family:'IM Fell English',serif;font-size:1.3rem;color:var(--tc);margin-bottom:1.4rem;">Alarms &amp; Reminders</div>
+      <div class="rem-card">
+        <div class="rem-title">☀ Morning Altar Alarm</div>
+        <div class="rem-desc">Fresh AI prayers, affirmations, and wealth wisdom every morning.</div>
+        <div class="time-badge" id="morningTimeDisplay">06:00 AM</div><br/><br/>
+        <label style="font-family:'Special Elite',serif;font-size:0.78rem;color:var(--inkm);">Set time: </label>
+        <input type="time" id="morningTime" value="06:00" style="font-family:'Special Elite',serif;font-size:0.83rem;border:1px solid var(--ml);border-radius:4px;padding:0.28rem 0.5rem;color:var(--ink);background:#fff;outline:none;" oninput="updateAlarmDisplay('morningTime','morningTimeDisplay')"/>
+        <div style="font-size:0.73rem;color:var(--inkm);margin-top:0.45rem;font-style:italic;font-family:'IM Fell English',serif;">Enable browser notifications below for background alarms.</div>
+      </div>
+      <div class="rem-card">
+        <div class="rem-title">☾ Evening Journal Reminder</div>
+        <div class="rem-desc">Reminded to write, reflect, and plan for tomorrow.</div>
+        <div class="time-badge" id="eveningTimeDisplay">11:00 PM</div><br/><br/>
+        <label style="font-family:'Special Elite',serif;font-size:0.78rem;color:var(--inkm);">Set time: </label>
+        <input type="time" id="eveningTime" value="23:00" style="font-family:'Special Elite',serif;font-size:0.83rem;border:1px solid var(--ml);border-radius:4px;padding:0.28rem 0.5rem;color:var(--ink);background:#fff;outline:none;" oninput="updateAlarmDisplay('eveningTime','eveningTimeDisplay')"/>
+      </div>
+      <div class="rem-card">
+        <div class="rem-title">🔔 Enable Browser Notifications</div>
+        <div class="rem-desc">Grant permission so alarms fire in the background.</div>
+        <button class="save-btn" onclick="requestNotifPerm()" style="margin-top:0;">Request Permission</button>
+        <div id="notifPermStatus" style="font-family:'Special Elite',serif;font-size:0.78rem;color:var(--tc);margin-top:0.5rem;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIF OVERLAY -->
+<div id="notifOverlay">
+  <div class="notif-card">
+    <div class="notif-icon" id="notifIcon">☾</div>
+    <div class="notif-title" id="notifTitle">Evening Reminder</div>
+    <div class="notif-body" id="notifBody">It is time to write in your journal, Beau.</div>
+    <button class="notif-close" onclick="closeNotif()">Begin</button>
+  </div>
+</div>
+
+<script>
+const MOODS=["Focused ✦","Grateful ✿","Determined ⚡","Reflective ☾","Energised ☀","Calm ≈","Challenged ◈","Joyful ✧"];
+const DREAM_MOODS=["Vivid ✦","Peaceful ✿","Unsettling ◈","Prophetic ☾","Joyful ✧","Strange ≈","Recurring ⚡","Forgotten ~"];
+const GOAL=34000000000;
+
+// ── DATA (load once, persist throughout) ──
+let entries    = JSON.parse(localStorage.getItem('bm_entries')    || '[]');
+let dreams     = JSON.parse(localStorage.getItem('bm_dreams')     || '[]');
+let thoughts   = JSON.parse(localStorage.getItem('bm_thoughts')   || '[]');
+let plan       = JSON.parse(localStorage.getItem('bm_plan')       || '{}');
+let todos      = JSON.parse(localStorage.getItem('bm_todos')      || '[]');
+let transactions = JSON.parse(localStorage.getItem('bm_transactions') || '[]');
+let chapters   = JSON.parse(localStorage.getItem('bm_chapters')   || '[]');
+
+let currentMode='journal';
+let currentMood='', currentTags=[], activeEntryId=null;
+let mediaRecorder=null, audioChunks=[], audioBlob=null;
+let alarmInterval=null, editingId=null;
+
+function dayKey(){ return new Date().toDateString(); }
+function todayISO(){ return new Date().toISOString().split('T')[0]; }
+function fmtDate(iso){ try{ return new Date(iso).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}); }catch(e){ return iso; } }
+function fmtDateLong(iso){ try{ return new Date(iso).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }catch(e){ return iso; } }
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── AI ──
+async function callClaude(prompt, maxTok=1200){
+  const r = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:maxTok, messages:[{role:'user',content:prompt}] })
+  });
+  const d = await r.json();
+  if(d.error) throw new Error(d.error.message);
+  return d.content.map(b=>b.text||'').join('').trim();
+}
+
+async function loadMorningContent(){
+  const today = dayKey();
+  const cached = JSON.parse(localStorage.getItem('bm_morning_'+today)||'null');
+  if(cached){ applyMorningContent(cached); return; }
+  document.getElementById('morningDate').textContent = fmtDateLong(new Date().toISOString());
+  try{
+    const raw = await callClaude(`You are the sacred morning voice for Beau Mason's personal journal. Today is ${fmtDateLong(new Date().toISOString())}. Beau is manifesting $34 billion through smart work, value creation, and divine favour. He prays to Orisha Aje (wealth/commerce) and Olokun (depth/abundance/mystery).
+Return ONLY valid JSON, no markdown, no backticks:
+{"prayerAje":"4-6 sentence prayer to Orisha Aje ending with Ase.","prayerOlokun":"4-6 sentence prayer to Olokun ending with Ase.","quote":"Powerful quote on wealth, stoicism, legacy or discipline.","quoteAuthor":"Author","affirmations":["aff1","aff2","aff3","aff4"],"prompt":"One deeply personal journaling prompt for Beau today."}`);
+    const c = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    localStorage.setItem('bm_morning_'+today, JSON.stringify(c));
+    applyMorningContent(c);
+  } catch(e){
+    document.getElementById('prayerAje').textContent='Orisha Aje, open the roads of abundance for me today. Bless every step toward my $34 billion vision. Ase.';
+    document.getElementById('prayerOlokun').textContent='Olokun, grant me ocean-level depth and clarity. Let abundance flow from all directions. Ase.';
+    document.getElementById('dailyQuote').textContent='"The impediment to action advances action."';
+    document.getElementById('quoteAttr').textContent='— Marcus Aurelius';
+    document.getElementById('affGrid').innerHTML=['I am building a $34B reality','Wealth flows through value I create','I am focused and unstoppable','Divine favour walks with me'].map(a=>`<div class="aff-item">${a}</div>`).join('');
+    localStorage.setItem('bm_prompt_today','What step will you take today toward your $34 billion vision?');
+  }
+}
+
+function applyMorningContent(c){
+  document.getElementById('morningDate').textContent = fmtDateLong(new Date().toISOString());
+  document.getElementById('prayerAje').textContent = c.prayerAje||'';
+  document.getElementById('prayerOlokun').textContent = c.prayerOlokun||'';
+  document.getElementById('dailyQuote').textContent = '\u201c'+(c.quote||'')+'\u201d';
+  document.getElementById('quoteAttr').textContent = '— '+(c.quoteAuthor||'');
+  document.getElementById('affGrid').innerHTML = (c.affirmations||[]).map(a=>`<div class="aff-item">${a}</div>`).join('');
+  localStorage.setItem('bm_prompt_today', c.prompt||'What step will you take today toward your $34 billion vision?');
+}
+
+async function getAIInsight(body){
+  try{
+    const recent = entries.slice(0,5).map(e=>e.body).join('\n---\n');
+    return await callClaude(`You are Beau Mason's private AI journal companion. Recent entries:\n\n${recent}\n\nLatest entry:\n"${body}"\n\nBeau is manifesting $34 billion through smart work, discipline, and spiritual alignment.\nWrite a 3-5 sentence personal reflection in second person ("You..."). Be specific, honest, warm. Reference his writing directly. No generic advice.`);
+  } catch(e){ return null; }
+}
+
+async function getAIDreamInterpretation(body){
+  try{
+    return await callClaude(`You are a dream interpreter versed in Yoruba spirituality, Jungian psychology, and wealth consciousness. Beau Mason wrote:\n\n"${body}"\n\nHe is on a $34 billion manifestation journey. Write a 3-4 sentence interpretation: symbols, subconscious processing, connection to wealth/destiny. Be specific and profound.`);
+  } catch(e){ return null; }
+}
+
+async function generateChapter(){
+  const allContent = [
+    ...entries.slice(0,8).map((e,i)=>`[JOURNAL ${i+1} — ${fmtDate(e.date)}]\n${e.body}`),
+    ...dreams.slice(0,4).map((d,i)=>`[DREAM ${i+1} — ${fmtDate(d.date)}]\n${d.body}`),
+    ...thoughts.slice(0,6).map((t,i)=>`[THOUGHT ${i+1} — ${fmtDate(t.date)}]\n${t.text}`)
+  ];
+  if(allContent.length < 2){ alert('Write at least 2 journal entries before generating a chapter.'); return; }
+  const btn = document.querySelector('.gen-btn');
+  btn.textContent='Writing your story...'; btn.disabled=true;
+  try{
+    const chNum = chapters.length+1;
+    const raw = await callClaude(`You are the ghostwriter for Beau Mason's autobiography. Beau is manifesting $34 billion through smart work, value creation, and divine alignment with Orisha Aje and Olokun.\n\nHere is his raw material (journal entries, dreams, and passing thoughts):\n\n${allContent.join('\n\n---\n\n')}\n\nWrite Chapter ${chNum} of his autobiography in first person as Beau Mason. Style: literary, warm, honest memoir writing.\n- Compelling chapter title\n- 4-6 paragraphs weaving together his journal insights, the symbolism from his dreams, and the raw energy of his thoughts\n- The spiritual journey woven naturally\n- The $34B mission as the north star\n\nReturn ONLY valid JSON: {"title":"Chapter title","body":"Full chapter with paragraphs separated by \\n\\n"}`, 2000);
+    const c = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    chapters.unshift({id:Date.now(), number:chNum, title:c.title, body:c.body, date:new Date().toISOString()});
+    localStorage.setItem('bm_chapters', JSON.stringify(chapters));
+    renderChapters();
+  } catch(e){ alert('Could not generate chapter. Please try again.'); }
+  btn.textContent='Generate New Chapter'; btn.disabled=false;
+}
+
+function renderChapters(){
+  const c = document.getElementById('chaptersContainer');
+  if(!chapters.length){ c.innerHTML='<div class="empty-state">No chapters yet. Write journal entries, dreams, or thoughts first.</div>'; return; }
+  c.innerHTML = chapters.map(ch=>`
+    <div class="chapter-card">
+      <div class="chapter-num">Chapter ${ch.number} — ${fmtDateLong(ch.date)}</div>
+      <div class="chapter-title-t">${escHtml(ch.title)}</div>
+      <div class="chapter-body">${escHtml(ch.body).replace(/\n\n/g,'</div><div class="chapter-body" style="margin-top:0.8rem;">').replace(/\n/g,'<br/>')}</div>
+    </div>`).join('');
+}
+
+// ── APP SHELL ──
+function openJournal(){
+  document.getElementById('cover').classList.remove('active');
+  document.getElementById('app').classList.add('active');
+  loadMorningContent();
+  loadPlan(); renderTodos(); renderFinLog(); updateFinStats(); renderChapters();
+  document.getElementById('finDate').value = todayISO();
+  startAlarmCheck();
+}
+
+function showPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('nb-'+p).classList.add('active');
+  if(p==='journal') renderEntries();
+  if(p==='book') renderChapters();
+}
+
+// ── MODE ──
+function setMode(m){
+  currentMode = m;
+  ['journal','dreams','thoughts'].forEach(x=>document.getElementById('mode'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('active', x===m));
+  activeEntryId = null;
+  const icons = {journal:'✦', dreams:'☾', thoughts:'✿'};
+  document.getElementById('newEntryBtn').textContent = m==='thoughts' ? '+ New Thought' : '+ New Entry';
+  renderEntries();
+  document.getElementById('editorPanel').innerHTML=`<div class="empty-state" style="margin-top:4rem;"><div style="font-size:2rem;margin-bottom:0.8rem;">${icons[m]}</div>Select an item or tap <strong>+</strong> to begin</div>`;
+}
+
+function getStore(){ return currentMode==='journal' ? entries : currentMode==='dreams' ? dreams : thoughts; }
+
+function renderEntries(){
+  const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
+  const store = getStore();
+  const filtered = store.filter(e=>{
+    const text = currentMode==='thoughts' ? (e.text||'') : (e.body||'');
+    return !q || text.toLowerCase().includes(q) || (e.tags||[]).join(' ').includes(q) || (e.mood||'').toLowerCase().includes(q);
+  });
+  const list = document.getElementById('entriesList');
+  const noun = currentMode==='thoughts' ? 'thoughts' : currentMode==='dreams' ? 'dreams' : 'entries';
+  if(!filtered.length){ list.innerHTML=`<div class="empty-state">No ${noun} yet.</div>`; return; }
+  list.innerHTML = filtered.map(e=>{
+    const dateStr = fmtDate(e.date);
+    const preview = currentMode==='thoughts' ? (e.text||'').slice(0,75) : (e.body||'').slice(0,75);
+    const badge = currentMode==='dreams' ? '<span class="dream-badge">Dream</span><br/>' : currentMode==='thoughts' ? '<span class="thought-badge">Thought</span><br/>' : '';
+    return `<div class="ecard${activeEntryId===e.id?' active':''}" onclick="openEntry(${e.id})">
+      ${badge}
+      <div class="ecard-date">${dateStr}</div>
+      <div class="ecard-mood">${e.mood||''}</div>
+      <div class="ecard-preview">${escHtml(preview)}${preview.length>=75?'...':''}</div>
+      ${(e.tags||[]).length?'<div class="etags">'+e.tags.map(t=>`<span class="etag">#${t}</span>`).join('')+'</div>':''}
+    </div>`;
+  }).join('');
+}
+
+function openEntry(id){
+  activeEntryId = id;
+  const store = getStore();
+  const e = store.find(x=>x.id===id);
+  if(!e) return;
+  renderEntries();
+  if(currentMode==='thoughts'){
+    document.getElementById('editorPanel').innerHTML=`
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.8rem;">
+          <div style="font-family:'IM Fell English',serif;font-style:italic;font-size:0.86rem;color:var(--inkm);">${fmtDateLong(e.date)}</div>
+          <button class="del-btn" onclick="deleteEntry(${e.id})">Delete</button>
+        </div>
+        <div style="font-family:'Special Elite',serif;font-size:0.95rem;color:var(--ink);line-height:1.8;white-space:pre-wrap;background:var(--mp);border:1px solid var(--ml);border-radius:4px;padding:1rem;">${escHtml(e.text||'')}</div>
+        ${e.tags&&e.tags.length?'<div class="etags" style="margin-top:0.7rem;">'+e.tags.map(t=>`<span class="etag">#${t}</span>`).join('')+'</div>':''}
+      </div>`;
+    return;
+  }
+  const isDream = currentMode==='dreams';
+  document.getElementById('editorPanel').innerHTML=`
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;flex-wrap:wrap;gap:0.5rem;">
+        <div>
+          <div style="font-family:'IM Fell English',serif;font-style:italic;color:var(--inkm);font-size:0.86rem;">${fmtDateLong(e.date)}</div>
+          <div style="font-family:'Special Elite',serif;font-size:0.8rem;color:var(--tc);">${e.mood||''}</div>
+        </div>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="edit-btn" onclick="startEdit(${e.id})">Edit</button>
+          <button class="del-btn" onclick="deleteEntry(${e.id})">Delete</button>
+        </div>
+      </div>
+      ${(e.tags||[]).length?'<div class="etags" style="margin-bottom:0.8rem;">'+e.tags.map(t=>`<span class="etag">#${t}</span>`).join('')+'</div>':''}
+      <div class="reader-body">${escHtml(e.body||'')}</div>
+      ${e.audioData?`<audio controls src="${e.audioData}" style="margin:0.8rem 0;border-radius:20px;height:32px;display:block;"></audio>`:''}
+      ${!isDream?`<div class="reader-sig">${escHtml(e.sig||'Beau Mason')}</div>`:''}
+      ${e.insight?`<div class="insight-box"><div class="insight-title">✦ AI Reflection</div><div class="insight-text">${escHtml(e.insight)}</div></div>`:''}
+      ${isDream&&e.interpretation?`<div class="insight-box" style="border-color:#c4a8e8;background:linear-gradient(135deg,#f5f0ff,#ede5ff);"><div class="insight-title" style="color:#5a3fa0;">☾ Dream Interpretation</div><div class="insight-text">${escHtml(e.interpretation)}</div></div>`:''}
+    </div>`;
+}
+
+function deleteEntry(id){
+  if(!confirm('Delete this entry?')) return;
+  if(currentMode==='journal'){ entries=entries.filter(e=>e.id!==id); localStorage.setItem('bm_entries',JSON.stringify(entries)); }
+  else if(currentMode==='dreams'){ dreams=dreams.filter(e=>e.id!==id); localStorage.setItem('bm_dreams',JSON.stringify(dreams)); }
+  else { thoughts=thoughts.filter(t=>t.id!==id); localStorage.setItem('bm_thoughts',JSON.stringify(thoughts)); }
+  activeEntryId=null; renderEntries();
+  document.getElementById('editorPanel').innerHTML='<div class="empty-state" style="margin-top:4rem;"><div style="font-size:2rem;margin-bottom:0.8rem;">✦</div>Entry deleted.</div>';
+}
+
+function openNewEntry(){
+  editingId=null; activeEntryId=null; currentMood=''; currentTags=[];  audioBlob=null;
+  renderEntries();
+  if(currentMode==='thoughts'){ renderThoughtForm(); return; }
+  const prompt = localStorage.getItem('bm_prompt_today')||'What step will you take today toward your $34 billion vision?';
+  renderWriteForm(null, prompt);
+}
+
+function startEdit(id){
+  const store = getStore();
+  const e = store.find(x=>x.id===id); if(!e) return;
+  editingId=id; currentMood=e.mood||''; currentTags=[...(e.tags||[])]; audioBlob=null;
+  renderWriteForm(e,'');
+}
+
+// ── THOUGHT FORM ──
+function renderThoughtForm(){
+  document.getElementById('editorPanel').innerHTML=`
+    <div>
+      <div class="wh">
+        <div style="font-family:'IM Fell English',serif;font-size:1.1rem;color:var(--tc);">New Thought</div>
+        <div class="wd" id="thoughtDateDisplay">${fmtDateLong(new Date().toISOString())}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:1rem;">
+        <span style="font-family:'Special Elite',serif;font-size:0.78rem;color:var(--inkm);">Date:</span>
+        <input type="date" class="date-picker" id="thoughtDate" value="${todayISO()}" oninput="updateThoughtDateDisplay()"/>
+      </div>
+      <div class="thought-quick">
+        <textarea class="thought-input" id="thoughtText" placeholder="What's on your mind, Beau?"></textarea>
+        <div class="thought-meta">
+          <input type="text" id="thoughtTagInput" placeholder="#tag + enter" style="border:1px solid var(--ml);border-radius:20px;padding:0.2rem 0.65rem;font-family:'Special Elite',serif;font-size:0.72rem;color:var(--ink);background:#fff;outline:none;width:120px;" onkeydown="addThoughtTag(event)"/>
+          <div id="thoughtTagChips" style="display:flex;gap:0.3rem;flex-wrap:wrap;"></div>
+        </div>
+      </div>
+      <button class="thought-save" onclick="saveThought()">Save Thought</button>
+      <span id="thoughtMsg" style="font-family:'IM Fell English',serif;font-style:italic;color:var(--tc);font-size:0.85rem;margin-left:0.8rem;display:none;">Saved.</span>
+    </div>`;
+  thoughtTags=[];
+}
+
+let thoughtTags=[];
+function updateThoughtDateDisplay(){
+  const v = document.getElementById('thoughtDate')?.value;
+  if(v) document.getElementById('thoughtDateDisplay').textContent = fmtDateLong(v+'T12:00:00');
+}
+function addThoughtTag(e){
+  if(e.key==='Enter'&&e.target.value.trim()){
+    const t=e.target.value.trim().replace(/\s+/g,'-').toLowerCase();
+    if(!thoughtTags.includes(t)) thoughtTags.push(t);
+    e.target.value='';
+    document.getElementById('thoughtTagChips').innerHTML = thoughtTags.map((t,i)=>`<span class="tag-chip" onclick="removeThoughtTag(${i})">#${t} ×</span>`).join('');
+  }
+}
+function removeThoughtTag(i){ thoughtTags.splice(i,1); document.getElementById('thoughtTagChips').innerHTML=thoughtTags.map((t,j)=>`<span class="tag-chip" onclick="removeThoughtTag(${j})">#${t} ×</span>`).join(''); }
+
+function saveThought(){
+  const text = (document.getElementById('thoughtText')?.value||'').trim();
+  if(!text){ alert('Write a thought first.'); return; }
+  const dateVal = document.getElementById('thoughtDate')?.value || todayISO();
+  const t = {id:Date.now(), date:dateVal+'T'+new Date().toTimeString().slice(0,8), text, tags:[...thoughtTags]};
+  thoughts.unshift(t);
+  localStorage.setItem('bm_thoughts', JSON.stringify(thoughts));
+  activeEntryId=t.id;
+  renderEntries();
+  const msg=document.getElementById('thoughtMsg');
+  if(msg){msg.style.display='inline';setTimeout(()=>msg.style.display='none',2000);}
+  thoughtTags=[];
+  document.getElementById('thoughtText').value='';
+  document.getElementById('thoughtTagChips').innerHTML='';
+}
+
+// ── WRITE FORM ──
+function renderWriteForm(e, prompt){
+  const isEdit=!!e, isDream=currentMode==='dreams';
+  const entryDate = e ? (e.date||new Date().toISOString()).split('T')[0] : todayISO();
+  const moodSet = isDream ? DREAM_MOODS : MOODS;
+  document.getElementById('editorPanel').innerHTML=`
+    <div class="wh">
+      <div style="font-family:'IM Fell English',serif;font-size:1.1rem;color:var(--tc);">${isEdit?'Edit '+(isDream?'Dream':'Entry'):isDream?'New Dream':'New Entry'}</div>
+      <div class="wd" id="entryDateDisplay">${fmtDateLong(entryDate+'T12:00:00')}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:1rem;">
+      <span style="font-family:'Special Elite',serif;font-size:0.78rem;color:var(--inkm);">Date:</span>
+      <input type="date" class="date-picker" id="entryDatePicker" value="${entryDate}" oninput="updateEntryDateDisplay()"/>
+    </div>
+    ${!isEdit&&!isDream?`<div class="pb"><div class="pl">✦ AI Prompt — Today</div>${escHtml(prompt)}</div>`:''}
+    ${!isEdit&&isDream?`<div class="pb" style="background:linear-gradient(90deg,#f5f0ff,#ede5ff);border-color:#c4a8e8;"><div class="pl" style="color:#5a3fa0;">☾ Record your dream</div>Write everything you remember — images, feelings, people, symbols.</div>`:''}
+    <div class="sl">Mood</div>
+    <div class="mood-row" id="moodRow"></div>
+    <div class="sl">Tags</div>
+    <div class="tag-row" id="tagRow"><input type="text" id="tagInput" placeholder="add tag + enter" onkeydown="addTag(event)"/></div>
+    <div class="toolbar">
+      <button class="tb-btn" onclick="wrapText('**','**')"><b>B</b></button>
+      <button class="tb-btn" onclick="wrapText('_','_')"><i>I</i></button>
+      <button class="tb-btn" onclick="wrapText('## ','')">H2</button>
+      <button class="tb-btn" onclick="wrapText('- ','')">List</button>
+      <button class="tb-btn" onclick="wrapText('> ','')">Quote</button>
+    </div>
+    <textarea class="editor-area" id="entryBody" placeholder="${isDream?'Describe your dream...':'Write freely, Beau...'}">${isEdit?escHtml(e.body||''):''}</textarea>
+    <div class="sl">Voice Memo</div>
+    <div class="voice-row">
+      <button class="rec-btn" id="recBtn" onclick="toggleRecording()">&#9679;</button>
+      <span class="vs" id="voiceStatus">Tap to record</span>
+      <audio id="audioPlayer" controls style="display:none;border-radius:20px;height:32px;"></audio>
+    </div>
+    ${isEdit&&e&&e.audioData?`<audio controls src="${e.audioData}" style="margin:0.4rem 0;border-radius:20px;height:32px;display:block;"></audio>`:''}
+    ${!isDream?`<div style="margin-top:0.8rem;text-align:right;"><input type="text" id="sigName" value="${isEdit&&e?escHtml(e.sig||'Beau Mason'):'Beau Mason'}" style="font-family:'Pinyon Script',cursive;font-size:2rem;color:var(--inks);border:none;background:transparent;outline:none;text-align:right;width:260px;"/></div>`:''}
+    <br/>
+    <button class="save-btn" onclick="saveEntry()">Save ${isDream?'Dream':'Entry'}</button>
+    ${isEdit?`<button class="edit-btn" onclick="openEntry(${e.id})" style="margin-left:0.8rem;">Cancel</button>`:''}
+    <span id="saveMsg" style="font-family:'IM Fell English',serif;font-style:italic;color:var(--tc);font-size:0.88rem;margin-left:1rem;display:none;">Saved.</span>`;
+  const mr=document.getElementById('moodRow');
+  moodSet.forEach(m=>{
+    const b=document.createElement('button'); b.className='mood-btn'+(currentMood===m?' selected':''); b.textContent=m;
+    b.onclick=()=>{ currentMood=m; document.querySelectorAll('.mood-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); };
+    mr.appendChild(b);
+  });
+  renderTagChips();
+}
+
+function updateEntryDateDisplay(){
+  const v=document.getElementById('entryDatePicker')?.value;
+  if(v) document.getElementById('entryDateDisplay').textContent=fmtDateLong(v+'T12:00:00');
+}
+
+function renderTagChips(){
+  const row=document.getElementById('tagRow'); if(!row) return;
+  const inp=document.getElementById('tagInput');
+  row.innerHTML='';
+  currentTags.forEach((t,i)=>{ const c=document.createElement('span'); c.className='tag-chip'; c.textContent='#'+t+' ×'; c.onclick=()=>{ currentTags.splice(i,1); renderTagChips(); }; row.appendChild(c); });
+  row.appendChild(inp);
+}
+
+function addTag(e){
+  if(e.key==='Enter'&&e.target.value.trim()){
+    const t=e.target.value.trim().replace(/\s+/g,'-').toLowerCase();
+    if(!currentTags.includes(t)) currentTags.push(t);
+    e.target.value=''; renderTagChips();
+  }
+}
+
+function wrapText(before,after){
+  const ta=document.getElementById('entryBody'); if(!ta) return;
+  const s=ta.selectionStart, en=ta.selectionEnd, sel=ta.value.substring(s,en);
+  ta.value=ta.value.substring(0,s)+before+sel+after+ta.value.substring(en); ta.focus();
+}
+
+async function toggleRecording(){
+  if(!mediaRecorder||mediaRecorder.state==='inactive'){
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      audioChunks=[]; audioBlob=null;
+      mediaRecorder=new MediaRecorder(stream);
+      mediaRecorder.ondataavailable=ev=>audioChunks.push(ev.data);
+      mediaRecorder.onstop=()=>{
+        audioBlob=new Blob(audioChunks,{type:'audio/webm'});
+        const url=URL.createObjectURL(audioBlob);
+        const ap=document.getElementById('audioPlayer');
+        if(ap){ap.src=url;ap.style.display='block';}
+        const vs=document.getElementById('voiceStatus'); if(vs) vs.textContent='Memo recorded.';
+        const rb=document.getElementById('recBtn'); if(rb) rb.classList.remove('recording');
+        stream.getTracks().forEach(t=>t.stop());
+      };
+      mediaRecorder.start();
+      const rb=document.getElementById('recBtn'); if(rb) rb.classList.add('recording');
+      const vs=document.getElementById('voiceStatus'); if(vs) vs.textContent='Recording... tap to stop';
+    } catch(err){ const vs=document.getElementById('voiceStatus'); if(vs) vs.textContent='Microphone access denied.'; }
+  } else if(mediaRecorder.state==='recording'){ mediaRecorder.stop(); }
+}
+
+function saveEntry(){
+  const ta=document.getElementById('entryBody');
+  const body=(ta?ta.value:'').trim();
+  if(!body){ alert('Write something first, Beau.'); return; }
+  const sigEl=document.getElementById('sigName');
+  const sig=sigEl?(sigEl.value.trim()||'Beau Mason'):'Beau Mason';
+  const isDream=currentMode==='dreams';
+  const dateVal=document.getElementById('entryDatePicker')?.value||todayISO();
+  const entryDate=dateVal+'T'+new Date().toTimeString().slice(0,8);
+
+  const doSave=async(audioData)=>{
+    if(editingId){
+      const store=isDream?dreams:entries;
+      const idx=store.findIndex(x=>x.id===editingId);
+      if(idx>-1) store[idx]={...store[idx],body,mood:currentMood,tags:[...currentTags],sig,date:entryDate,audioData:audioData||store[idx].audioData};
+      if(isDream) localStorage.setItem('bm_dreams',JSON.stringify(dreams));
+      else localStorage.setItem('bm_entries',JSON.stringify(entries));
+      activeEntryId=editingId; editingId=null;
+    } else {
+      const entry={id:Date.now(),date:entryDate,body,mood:currentMood,tags:[...currentTags],sig,audioData:audioData||null,insight:null,interpretation:null};
+      if(isDream){ dreams.unshift(entry); localStorage.setItem('bm_dreams',JSON.stringify(dreams)); }
+      else { entries.unshift(entry); localStorage.setItem('bm_entries',JSON.stringify(entries)); }
+      activeEntryId=entry.id;
+      // AI in background
+      if(isDream){
+        getAIDreamInterpretation(body).then(interp=>{
+          if(interp){ const d=dreams.find(x=>x.id===entry.id); if(d){d.interpretation=interp;localStorage.setItem('bm_dreams',JSON.stringify(dreams));if(activeEntryId===entry.id) openEntry(entry.id);} }
+        });
+      } else {
+        getAIInsight(body).then(insight=>{
+          if(insight){ const e2=entries.find(x=>x.id===entry.id); if(e2){e2.insight=insight;localStorage.setItem('bm_entries',JSON.stringify(entries));if(activeEntryId===entry.id) openEntry(entry.id);} }
+        });
+      }
+    }
+    renderEntries(); openEntry(activeEntryId);
+    const msg=document.getElementById('saveMsg'); if(msg){msg.style.display='inline';setTimeout(()=>msg.style.display='none',2000);}
+  };
+  if(audioBlob){const r=new FileReader();r.onload=()=>doSave(r.result);r.readAsDataURL(audioBlob);}
+  else doSave(null);
+}
+
+// ── FINANCES ──
+function logTransaction(){
+  const type=document.getElementById('finType').value;
+  const amount=parseFloat(document.getElementById('finAmount').value);
+  const desc=(document.getElementById('finDesc').value||'').trim();
+  const cat=document.getElementById('finCat').value;
+  const date=document.getElementById('finDate').value||todayISO();
+  if(!amount||isNaN(amount)||!desc){alert('Please enter an amount and description.');return;}
+  transactions.unshift({id:Date.now(),type,amount,desc,cat,date});
+  localStorage.setItem('bm_transactions',JSON.stringify(transactions));
+  document.getElementById('finAmount').value='';
+  document.getElementById('finDesc').value='';
+  renderFinLog(); updateFinStats();
+}
+
+function renderFinLog(){
+  const filter=(document.getElementById('finFilter')?.value)||'all';
+  const log=document.getElementById('finLog');
+  const filtered=transactions.filter(t=>filter==='all'||t.type===filter);
+  if(!filtered.length){log.innerHTML='<div style="font-family:\'IM Fell English\',serif;font-style:italic;color:var(--inkm);text-align:center;padding:1.5rem 0;font-size:0.85rem;">No transactions yet.</div>';return;}
+  log.innerHTML=filtered.slice(0,60).map(t=>`
+    <div class="fin-item">
+      <div>
+        <div>${escHtml(t.desc)}</div>
+        <div class="fin-item-cat">${t.cat} · ${t.date}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;">
+        <span class="fin-amt ${t.type==='income'?'fi':t.type==='expense'?'fe':'fs'}">${t.type==='expense'?'-':'+'} ₦${Number(t.amount).toLocaleString()}</span>
+        <button class="fin-del" onclick="deleteTransaction(${t.id})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function deleteTransaction(id){
+  transactions=transactions.filter(t=>t.id!==id);
+  localStorage.setItem('bm_transactions',JSON.stringify(transactions));
+  renderFinLog(); updateFinStats();
+}
+
+function updateFinStats(){
+  const income=transactions.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const expense=transactions.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const savings=transactions.filter(t=>t.type==='savings').reduce((s,t)=>s+t.amount,0);
+  const net=income-expense+savings;
+  document.getElementById('statIncome').textContent='₦'+income.toLocaleString();
+  document.getElementById('statExpense').textContent='₦'+expense.toLocaleString();
+  document.getElementById('statSavings').textContent='₦'+savings.toLocaleString();
+  document.getElementById('statNet').textContent='₦'+net.toLocaleString();
+  const pct=Math.min((net/GOAL)*100,100);
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('goalPct').textContent=pct.toFixed(6)+'%';
+  document.getElementById('goalMsg').textContent=net>0?`₦${net.toLocaleString()} tracked. ₦${(GOAL-net).toLocaleString(undefined,{maximumFractionDigits:0})} to go. Keep building.`:'Every naira logged is a step toward the vision.';
+}
+
+// ── PLAN ──
+function loadPlan(){
+  const today=dayKey();
+  const savedDay=localStorage.getItem('bm_plan_day');
+  if(savedDay&&savedDay!==today){
+    const yPlanData=JSON.parse(localStorage.getItem('bm_plan')||'{}');
+    yPlanData.todos=JSON.parse(localStorage.getItem('bm_todos')||'[]');
+    localStorage.setItem('bm_plan_yesterday',JSON.stringify(yPlanData));
+    plan={}; todos=[];
+    localStorage.setItem('bm_plan',JSON.stringify(plan));
+    localStorage.setItem('bm_todos',JSON.stringify(todos));
+  }
+  localStorage.setItem('bm_plan_day',today);
+  if(plan.priorities) document.getElementById('planPriorities').value=plan.priorities;
+  if(plan.intention) document.getElementById('planIntention').value=plan.intention;
+  if(plan.review) document.getElementById('planReview').value=plan.review;
+  const yp=JSON.parse(localStorage.getItem('bm_plan_yesterday')||'null');
+  if(yp){
+    document.getElementById('yesterdayBlock').style.display='block';
+    document.getElementById('yPriorities').textContent=yp.priorities||'—';
+    document.getElementById('yIntention').textContent=yp.intention||'—';
+    const ytd=yp.todos||[];
+    document.getElementById('yTodos').innerHTML=ytd.length?ytd.map(t=>`<div class="${t.done?'done':''}">${t.done?'✓':'○'} ${t.text}</div>`).join(''):'—';
+  }
+}
+
+function savePlan(){
+  plan.priorities=document.getElementById('planPriorities').value;
+  plan.intention=document.getElementById('planIntention').value;
+  plan.review=document.getElementById('planReview').value;
+  localStorage.setItem('bm_plan',JSON.stringify(plan));
+  localStorage.setItem('bm_plan_day',dayKey());
+  const msg=document.getElementById('planMsg'); msg.style.display='inline'; setTimeout(()=>msg.style.display='none',2500);
+}
+
+function renderTodos(){
+  document.getElementById('todoList').innerHTML=todos.map((t,i)=>`
+    <li class="todo-item">
+      <input type="checkbox" class="todo-check" ${t.done?'checked':''} onchange="toggleTodo(${i})"/>
+      <span class="todo-text${t.done?' done':''}">${escHtml(t.text)}</span>
+      <button onclick="removeTodo(${i})" style="background:none;border:none;cursor:pointer;color:var(--inkm);font-size:0.76rem;">✕</button>
+    </li>`).join('');
+}
+
+function addTodo(e){ if(e.key==='Enter') addTodoClick(); }
+function addTodoClick(){
+  const inp=document.getElementById('todoInput'), t=inp.value.trim(); if(!t) return;
+  todos.push({text:t,done:false}); inp.value=''; renderTodos(); localStorage.setItem('bm_todos',JSON.stringify(todos));
+}
+function toggleTodo(i){ todos[i].done=!todos[i].done; renderTodos(); localStorage.setItem('bm_todos',JSON.stringify(todos)); }
+function removeTodo(i){ todos.splice(i,1); renderTodos(); localStorage.setItem('bm_todos',JSON.stringify(todos)); }
+
+// ── ALARMS ──
+function updateAlarmDisplay(iId,dId){
+  const[h,m]=document.getElementById(iId).value.split(':').map(Number);
+  const ampm=h>=12?'PM':'AM', h12=h%12||12;
+  document.getElementById(dId).textContent=`${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+}
+function startAlarmCheck(){ if(alarmInterval) clearInterval(alarmInterval); alarmInterval=setInterval(checkAlarms,30000); checkAlarms(); }
+function checkAlarms(){
+  const now=new Date(), hh=now.getHours(), mm=now.getMinutes();
+  const me=document.getElementById('morningTime'), ee=document.getElementById('eveningTime');
+  if(!me||!ee) return;
+  const[mh,mmin]=me.value.split(':').map(Number), [eh,em]=ee.value.split(':').map(Number);
+  const key='alarm_'+now.toDateString(), fired=JSON.parse(localStorage.getItem(key)||'{}');
+  if(hh===mh&&mm===mmin&&!fired.morning){ fired.morning=true; localStorage.setItem(key,JSON.stringify(fired)); showNotif('morning'); sendBrowserNotif('Morning Altar','Rise, Beau Mason. Your AI morning prayers are ready.'); }
+  if(hh===eh&&mm===em&&!fired.evening){ fired.evening=true; localStorage.setItem(key,JSON.stringify(fired)); showNotif('evening'); sendBrowserNotif('Evening Journal','It is time, Beau. Write in your journal. Plan for tomorrow.'); }
+}
+function showNotif(type){
+  document.getElementById('notifIcon').textContent=type==='morning'?'☀':'☾';
+  document.getElementById('notifTitle').textContent=type==='morning'?'Morning Altar':'Evening Journal';
+  document.getElementById('notifBody').textContent=type==='morning'
+    ?"Rise, Beau Mason. Your AI-generated prayer to Orisha Aje and Olokun is ready. Set your intention for the 34 Billion Dollar Reality."
+    :"It is 11 o'clock, Beau. Write in your journal, reflect on the day, and plan tomorrow. The empire is built one evening at a time.";
+  document.getElementById('notifOverlay').classList.add('show');
+}
+function closeNotif(){ document.getElementById('notifOverlay').classList.remove('show'); }
+async function requestNotifPerm(){
+  if(!('Notification' in window)){ document.getElementById('notifPermStatus').textContent='Not supported.'; return; }
+  const p=await Notification.requestPermission();
+  document.getElementById('notifPermStatus').textContent=p==='granted'?'Permission granted. Alarms active.':'Permission denied. In-app reminders will still show.';
+}
+function sendBrowserNotif(title,body){ if('Notification' in window&&Notification.permission==='granted') new Notification(title,{body}); }
+</script>
+</body>
+</html>
