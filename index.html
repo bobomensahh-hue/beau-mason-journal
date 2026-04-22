@@ -469,11 +469,52 @@ function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').r
 
 // ── AI ──
 async function callClaude(prompt,maxTok=1200){
-  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTok,messages:[{role:'user',content:prompt}]})});
+  let key=localStorage.getItem('bm_anthropic_key')||'';
+  if(!key){
+    key=await showApiKeyPrompt();
+    if(!key) throw new Error('No API key provided.');
+  }
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTok,messages:[{role:'user',content:prompt}]})});
   const d=await r.json();
-  if(d.error) throw new Error(d.error.message);
+  if(d.error){
+    if(d.error.type==='authentication_error'){localStorage.removeItem('bm_anthropic_key');}
+    throw new Error(d.error.message);
+  }
   return d.content.map(b=>b.text||'').join('').trim();
 }
+
+function showApiKeyPrompt(){
+  return new Promise((resolve)=>{
+    const overlay=document.createElement('div');
+    overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;font-family:Special Elite,serif;';
+    overlay.innerHTML=`
+      <div style="background:#fff;border-radius:10px;padding:2rem;max-width:420px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.25);">
+        <div style="font-family:'IM Fell English',serif;font-size:1.3rem;color:#7c5c2e;margin-bottom:0.5rem;">✦ One-time Setup</div>
+        <p style="font-size:0.85rem;color:#555;line-height:1.6;margin-bottom:1.2rem;">To power the AI features (chapters, prayers, reflections), paste your Anthropic API key below. It saves to this device only — never sent anywhere else.</p>
+        <p style="font-size:0.78rem;color:#888;margin-bottom:1rem;">Get your key free at <strong>console.anthropic.com</strong> → API Keys → Create Key</p>
+        <input id="apiKeyInput" type="password" placeholder="sk-ant-..." style="width:100%;box-sizing:border-box;border:1px solid #d4b896;border-radius:6px;padding:0.65rem 0.8rem;font-family:'Special Elite',serif;font-size:0.9rem;outline:none;margin-bottom:1rem;"/>
+        <div style="display:flex;gap:0.8rem;">
+          <button id="apiKeySave" style="flex:1;background:#7c5c2e;color:#fff;border:none;border-radius:6px;padding:0.65rem;font-family:'Special Elite',serif;font-size:0.88rem;cursor:pointer;">Save & Continue</button>
+          <button id="apiKeyCancel" style="flex:1;background:#f5f0e8;color:#7c5c2e;border:1px solid #d4b896;border-radius:6px;padding:0.65rem;font-family:'Special Elite',serif;font-size:0.88rem;cursor:pointer;">Cancel</button>
+        </div>
+        <p id="apiKeyErr" style="color:#c0392b;font-size:0.78rem;margin-top:0.6rem;display:none;">Please paste a valid key (starts with sk-ant-).</p>
+      </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('apiKeySave').onclick=()=>{
+      const val=document.getElementById('apiKeyInput').value.trim();
+      if(!val.startsWith('sk-ant-')){document.getElementById('apiKeyErr').style.display='block';return;}
+      localStorage.setItem('bm_anthropic_key',val);
+      document.body.removeChild(overlay);
+      resolve(val);
+    };
+    document.getElementById('apiKeyCancel').onclick=()=>{document.body.removeChild(overlay);resolve('');};
+  });
+}
+
+window.resetApiKey=function(){
+  localStorage.removeItem('bm_anthropic_key');
+  alert('API key cleared. You will be asked for it next time you use an AI feature.');
+};
 
 async function loadMorningContent(){
   const today=dayKey();
