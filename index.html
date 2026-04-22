@@ -576,7 +576,16 @@ window.generateChapter = async function(){
     window.chapters.push(chapter);
     await window.fbSave('chapters',chapter.id,chapter);
     window.renderChapters();
-  }catch(e){alert('Could not generate chapter. Please try again.');}
+  }catch(e){
+    const msg=e.message||'';
+    if(msg.includes('authentication')||msg.includes('API key')||msg.includes('auth')){
+      alert('❌ API Key issue — your Anthropic key is missing or wrong.\n\nOpen the browser console, type:\n  localStorage.removeItem("bm_anthropic_key")\n\nThen try again and paste your key in the popup.');
+    } else if(msg.includes('No API key')){
+      alert('❌ No API key saved. Tap Generate again — a popup will ask you to paste your key from console.anthropic.com');
+    } else {
+      alert('❌ Could not generate chapter.\n\nError: '+msg+'\n\nIf this keeps happening, try refreshing the page.');
+    }
+  }
   btn.textContent='Generate New Chapter';btn.disabled=false;
 };
 
